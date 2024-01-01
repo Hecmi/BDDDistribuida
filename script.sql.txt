@@ -1,0 +1,38 @@
+--Crear publicación desde el computador, servidor o nodo principal
+--CREATE PUBLICATION Prueba FOR ALL TABLES;
+CREATE PUBLICATION Prueba FOR TABLES categories;
+
+--Crear suscripción a partir de una publicación realizada en el servidor o nodo principal
+CREATE SUBSCRIPTION suscripcion CONNECTION 'dbname=Prueba hostaddr=26.104.34.222 port=5432 user=Casanova password=123456' 
+PUBLICATION Prueba;
+
+--Crear conexión al computador principal usando la extensión dblink
+CREATE EXTENSION dblink;
+SELECT dblink_connect('dbname=Prueba user=Casanova password=123456 hostaddr=26.104.34.222 port=5432');
+
+select * from dblink('
+Select 
+	category_id, category_name, description
+	from categories
+') as t 
+(
+ 	category_id smallint,
+    category_name character varying(15),
+    description text
+)
+
+
+--Crear conexión al computador receptor usando la extensión dblink
+CREATE EXTENSION dblink;
+SELECT dblink_connect('dbname=PruebaSuscripcion user=postgres password=123456 hostaddr=26.208.60.8 port=5432');
+
+select * from dblink('
+Select 
+	category_id, category_name, description
+	from categories
+') as t 
+(
+ 	category_id smallint,
+    category_name character varying(15),
+    description text
+)
